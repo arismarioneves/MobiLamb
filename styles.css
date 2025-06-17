@@ -55,6 +55,14 @@ body {
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.white-sheep {
+    /* filter: ... */
+}
+
+.black-sheep {
+    filter: grayscale(100%) brightness(0.5) hue-rotate(180deg);
+}
+
 .menu-container p {
     color: #718096;
     margin-bottom: 2rem;
@@ -333,8 +341,8 @@ body {
 }
 
 .terrain.possible {
-    border-color: #6366f1;
-    box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
+    border-color: #2d3748;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
     animation: pulse 1.5s infinite;
 }
 
@@ -342,11 +350,11 @@ body {
 
     0%,
     100% {
-        box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
     }
 
     50% {
-        box-shadow: 0 0 15px rgba(99, 102, 241, 0.6);
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
     }
 }
 
@@ -408,7 +416,7 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 2rem;
+    font-size: 3rem;
     z-index: 10;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
     transition: all 0.5s ease;

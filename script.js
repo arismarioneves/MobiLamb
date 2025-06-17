@@ -169,10 +169,10 @@ class MobiLambGame {
             // Add value classes
             if (terrain.value === this.terrainValues.PLAYER1_START) {
                 terrainElement.classList.add('player1-start');
-                terrainElement.textContent = '🟩';
+                terrainElement.textContent = ''; // 🟩
             } else if (terrain.value === this.terrainValues.PLAYER2_START) {
                 terrainElement.classList.add('player2-start');
-                terrainElement.textContent = '🟧';
+                terrainElement.textContent = ''; // 🟧
             } else {
                 terrainElement.classList.add(`value-${terrain.value}`);
                 terrainElement.textContent = terrain.value;
@@ -344,7 +344,8 @@ class MobiLambGame {
         this.clearCurrentPlayerHighlight();
 
         setTimeout(() => {
-            document.getElementById('winner-text').textContent = `Jogador ${this.gameState.winner} Venceu!`;
+            const winnerName = this.gameState.winner === 1 ? 'Dolly' : 'Shaun';
+            document.getElementById('winner-text').textContent = `${winnerName} Venceu!`;
             document.getElementById('game-over-reason').textContent = 'O oponente não pode mais se mover';
             this.showScreen('game-over-screen');
         }, 1000);
@@ -392,7 +393,8 @@ class MobiLambGame {
         const currentTurnElement = document.getElementById('current-turn');
         const movesCountElement = document.getElementById('moves-count');
 
-        currentTurnElement.textContent = `Vez do Jogador ${this.gameState.currentPlayer}`;
+        const playerName = this.gameState.currentPlayer === 1 ? 'Dolly' : 'Shaun';
+        currentTurnElement.textContent = `Vez de ${playerName}`;
 
         const currentPlayerData = this.gameState.players[this.gameState.currentPlayer];
         if (currentPlayerData.position !== null) {

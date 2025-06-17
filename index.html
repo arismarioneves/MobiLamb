@@ -13,14 +13,16 @@
         <!-- Tela Inicial -->
         <div id="menu-screen" class="screen active">
             <div class="menu-container">
-                <h1>🐑 MobiLamb 🐑</h1>
+                <h1>
+                    <span style="font-size:1.2em;">🐑</span> MobiLamb
+                </h1>
                 <p>Jogo de estratégia com ovelhas na fazenda</p>
 
                 <div class="menu-buttons">
                     <button id="create-game-btn" class="menu-btn">Criar Partida</button>
                     <button id="join-game-btn" class="menu-btn">Entrar em Partida</button>
-                    <button id="tutorial-btn" class="menu-btn">Tutorial</button>
                     <button id="find-game-btn" class="menu-btn disabled">Procurar Partida</button>
+                    <button id="tutorial-btn" class="menu-btn">Tutorial</button>
                 </div>
             </div>
         </div>
@@ -74,14 +76,16 @@
                         <h3>🏁 Configuração</h3>
                         <div class="board-example">
                             <div class="mini-board">
-                                <div class="mini-terrain start1">🟩</div>
+                                <!-- <div class="mini-terrain start1">🟩</div> -->
+                                <div class="mini-terrain start1">🐑</div>
                                 <div class="mini-terrain value-1">1</div>
                                 <div class="mini-terrain value-2">2</div>
                                 <div class="mini-terrain value-3">3</div>
                                 <div class="mini-terrain value-4">4</div>
                                 <div class="mini-terrain value-1">1</div>
                                 <div class="mini-terrain value-2">2</div>
-                                <div class="mini-terrain start2">🟧</div>
+                                <!-- <div class="mini-terrain start2">🟧</div> -->
+                                <div class="mini-terrain start2"><span style="filter: brightness(0.3);">🐑</span></div>
                                 <div class="mini-terrain value-3">3</div>
                                 <div class="mini-terrain value-1">1</div>
                                 <div class="mini-terrain value-2">2</div>
@@ -93,8 +97,8 @@
                             </div>
                         </div>
                         <ul>
-                            <li><strong>🟩 Início Jogador 1</strong> (Ovelha Branca)</li>
-                            <li><strong>🟧 Início Jogador 2</strong> (Ovelha Preta)</li>
+                            <li><strong>🟩 Início de Dolly</strong> (Ovelha Branca)</li>
+                            <li><strong>🟧 Início de Shaun</strong> (Ovelha Negra)</li>
                             <li><strong>Terrenos numerados:</strong> 4x valor 1, 4x valor 2, 4x valor 3, 2x valor 4</li>
                         </ul>
                     </div>
@@ -149,8 +153,8 @@
                         <h3>🎮 Interface</h3>
                         <ul>
                             <li>🌟 <strong>Dourado pulsante:</strong> Sua ovelha atual</li>
-                            <li>🔵 <strong>Azul:</strong> Onde você pode mover</li>
-                            <li>⚫ <strong>Cinza:</strong> Terrenos inativos</li>
+                            <li>⚫ <strong>Escuro:</strong> Onde você pode mover</li>
+                            <li>⚪ <strong>Claro:</strong> Terrenos inativos</li>
                         </ul>
                     </div>
                 </div>
@@ -167,21 +171,21 @@
                 <div class="game-header">
                     <div class="player-info">
                         <div class="player player1">
-                            <span class="player-icon">🐑</span>
-                            <span class="player-name">Jogador 1</span>
+                            <span class="player-icon white-sheep">🐑</span>
+                            <span class="player-name">Dolly</span>
                             <span class="player-status"></span>
                         </div>
                         <div class="game-info">
                             <div class="turn-indicator">
-                                <span id="current-turn">Vez do Jogador 1</span>
+                                <span id="current-turn">Vez de Dolly</span>
                             </div>
                             <div class="moves-left">
                                 <span id="moves-count">Movimentos: 4</span>
                             </div>
                         </div>
                         <div class="player player2">
-                            <span class="player-icon">🐑</span>
-                            <span class="player-name">Jogador 2</span>
+                            <span class="player-icon black-sheep">🐑</span>
+                            <span class="player-name">Shaun</span>
                             <span class="player-status"></span>
                         </div>
                     </div>
