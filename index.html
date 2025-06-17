@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MobiLamb - Jogo de Ovelhas</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div id="app">
+        <!-- Tela Inicial -->
+        <div id="menu-screen" class="screen active">
+            <div class="menu-container">
+                <h1>🐑 MobiLamb 🐑</h1>
+                <p>Jogo de estratégia com ovelhas na fazenda</p>
+
+                <div class="menu-buttons">
+                    <button id="create-game-btn" class="menu-btn">Criar Partida</button>
+                    <button id="join-game-btn" class="menu-btn">Entrar em Partida</button>
+                    <button id="find-game-btn" class="menu-btn disabled">Procurar Partida</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tela de Criar Partida -->
+        <div id="create-screen" class="screen">
+            <div class="create-container">
+                <h2>Criar Nova Partida</h2>
+                <div class="game-code-container">
+                    <label>Código da Partida:</label>
+                    <div class="code-display">
+                        <span id="game-code">LAMB-</span>
+                        <button id="copy-code-btn" class="copy-btn">📋</button>
+                    </div>
+                </div>
+                <p>Compartilhe este código com outro jogador</p>
+                <div class="create-buttons">
+                    <button id="start-game-btn" class="game-btn">Iniciar Jogo</button>
+                    <button id="back-to-menu-btn" class="game-btn secondary">Voltar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tela de Entrar em Partida -->
+        <div id="join-screen" class="screen">
+            <div class="join-container">
+                <h2>Entrar em Partida</h2>
+                <div class="input-container">
+                    <label for="join-code">Código da Partida:</label>
+                    <input type="text" id="join-code" placeholder="LAMB-XXXX" maxlength="9">
+                </div>
+                <div class="join-buttons">
+                    <button id="join-btn" class="game-btn">Entrar</button>
+                    <button id="back-to-menu2-btn" class="game-btn secondary">Voltar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tela do Jogo -->
+        <div id="game-screen" class="screen">
+            <div class="game-container">
+                <div class="game-header">
+                    <div class="player-info">
+                        <div class="player player1">
+                            <span class="player-icon">🐑</span>
+                            <span class="player-name">Jogador 1</span>
+                            <span class="player-status"></span>
+                        </div>
+                        <div class="game-info">
+                            <div class="turn-indicator">
+                                <span id="current-turn">Vez do Jogador 1</span>
+                            </div>
+                            <div class="moves-left">
+                                <span id="moves-count">Movimentos: 4</span>
+                            </div>
+                        </div>
+                        <div class="player player2">
+                            <span class="player-icon">🐑</span>
+                            <span class="player-name">Jogador 2</span>
+                            <span class="player-status"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="game-board-container">
+                    <div id="game-board" class="game-board"></div>
+                </div>
+
+                <div class="game-controls">
+                    <button id="leave-game-btn" class="control-btn">Sair do Jogo</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tela de Fim de Jogo -->
+        <div id="game-over-screen" class="screen">
+            <div class="game-over-container">
+                <h2 id="winner-text">Jogador 1 Venceu!</h2>
+                <p id="game-over-reason">O oponente não pode mais se mover</p>
+                <div class="game-over-buttons">
+                    <button id="new-game-btn" class="game-btn">Nova Partida</button>
+                    <button id="back-to-menu3-btn" class="game-btn secondary">Menu Principal</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
