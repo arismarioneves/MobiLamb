@@ -92,7 +92,8 @@ body {
 }
 
 /* Create/Join Screens */
-.create-container, .join-container {
+.create-container,
+.join-container {
     text-align: center;
     background: rgba(255, 255, 255, 0.95);
     padding: 2rem;
@@ -102,7 +103,8 @@ body {
     width: 90%;
 }
 
-.create-container h2, .join-container h2 {
+.create-container h2,
+.join-container h2 {
     color: #4a5568;
     margin-bottom: 1.5rem;
     font-size: 1.8rem;
@@ -178,7 +180,8 @@ body {
     border-color: #4299e1;
 }
 
-.create-buttons, .join-buttons {
+.create-buttons,
+.join-buttons {
     display: flex;
     gap: 1rem;
     margin-top: 1.5rem;
@@ -330,14 +333,21 @@ body {
 }
 
 .terrain.possible {
-    border-color: #ffd700;
-    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    border-color: #6366f1;
+    box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
     animation: pulse 1.5s infinite;
 }
 
 @keyframes pulse {
-    0%, 100% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); }
-    50% { box-shadow: 0 0 30px rgba(255, 215, 0, 0.8); }
+
+    0%,
+    100% {
+        box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
+    }
+
+    50% {
+        box-shadow: 0 0 15px rgba(99, 102, 241, 0.6);
+    }
 }
 
 .terrain.disabled {
@@ -355,10 +365,42 @@ body {
 }
 
 /* Terrain Values */
-.terrain.value-1 { background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%); }
-.terrain.value-2 { background: linear-gradient(135deg, #9f7aea 0%, #805ad5 100%); }
-.terrain.value-3 { background: linear-gradient(135deg, #ed64a6 0%, #d53f8c 100%); }
-.terrain.value-4 { background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%); }
+.terrain.value-1 {
+    background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+}
+
+.terrain.value-2 {
+    background: linear-gradient(135deg, #9f7aea 0%, #805ad5 100%);
+}
+
+.terrain.value-3 {
+    background: linear-gradient(135deg, #ed64a6 0%, #d53f8c 100%);
+}
+
+.terrain.value-4 {
+    background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+}
+
+.terrain.current-player {
+    border-color: #ffd700;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
+    animation: currentPlayerPulse 2s infinite;
+    transform: scale(1.05);
+}
+
+@keyframes currentPlayerPulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
+        border-width: 3px;
+    }
+
+    50% {
+        box-shadow: 0 0 30px rgba(255, 215, 0, 0.9);
+        border-width: 4px;
+    }
+}
 
 /* Sheep */
 .sheep {
@@ -404,6 +446,160 @@ body {
     transform: translateY(-1px);
 }
 
+/* Tutorial Screen */
+.tutorial-container {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    width: 90%;
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
+.tutorial-container h2 {
+    text-align: center;
+    color: #4a5568;
+    margin-bottom: 2rem;
+    font-size: 2rem;
+}
+
+.tutorial-content {
+    text-align: left;
+}
+
+.tutorial-section {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: rgba(247, 250, 252, 0.8);
+    border-radius: 12px;
+    border-left: 4px solid #48bb78;
+}
+
+.tutorial-section h3 {
+    color: #2d3748;
+    margin-bottom: 1rem;
+    font-size: 1.3rem;
+}
+
+.tutorial-section p {
+    color: #4a5568;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.tutorial-section ul {
+    color: #4a5568;
+    line-height: 1.8;
+    padding-left: 1.5rem;
+}
+
+.tutorial-section li {
+    margin-bottom: 0.5rem;
+}
+
+.board-example {
+    display: flex;
+    justify-content: center;
+    margin: 1rem 0;
+}
+
+.mini-board {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+    width: 200px;
+    height: 200px;
+}
+
+.mini-terrain {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.mini-terrain.start1 {
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+}
+
+.mini-terrain.start2 {
+    background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+}
+
+.mini-terrain.value-1 {
+    background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+}
+
+.mini-terrain.value-2 {
+    background: linear-gradient(135deg, #9f7aea 0%, #805ad5 100%);
+}
+
+.mini-terrain.value-3 {
+    background: linear-gradient(135deg, #ed64a6 0%, #d53f8c 100%);
+}
+
+.mini-terrain.value-4 {
+    background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+}
+
+.movement-rules {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.rule {
+    background: rgba(255, 255, 255, 0.7);
+    padding: 0.75rem;
+    border-radius: 8px;
+    border-left: 3px solid #4299e1;
+}
+
+.terrain-badge {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    color: white;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.terrain-badge.value-3 {
+    background: linear-gradient(135deg, #ed64a6 0%, #d53f8c 100%);
+}
+
+.example-grid {
+    display: flex;
+    justify-content: center;
+    margin: 1rem 0;
+    background: rgba(255, 255, 255, 0.5);
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+.example-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.example-cell {
+    font-size: 1.2rem;
+    padding: 0.5rem;
+}
+
+.tutorial-buttons {
+    text-align: center;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 2px solid #e2e8f0;
+}
+
 /* Game Over Screen */
 .game-over-container {
     text-align: center;
@@ -446,13 +642,20 @@ body {
         font-size: 1.5rem;
     }
 
-    .create-buttons, .join-buttons, .game-over-buttons {
+    .create-buttons,
+    .join-buttons,
+    .game-over-buttons {
         flex-direction: column;
     }
 }
 
 @media (max-width: 480px) {
-    .menu-container, .create-container, .join-container, .game-over-container {
+
+    .menu-container,
+    .create-container,
+    .join-container,
+    .game-over-container,
+    .tutorial-container {
         padding: 1.5rem;
     }
 
@@ -462,5 +665,22 @@ body {
 
     .sheep {
         font-size: 1.2rem;
+    }
+
+    .tutorial-container {
+        max-height: 90vh;
+    }
+
+    .tutorial-section {
+        padding: 1rem;
+    }
+
+    .mini-board {
+        width: 150px;
+        height: 150px;
+    }
+
+    .mini-terrain {
+        font-size: 0.7rem;
     }
 }

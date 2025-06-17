@@ -31,6 +31,7 @@ class MobiLambGame {
         // Menu buttons
         document.getElementById('create-game-btn').addEventListener('click', () => this.showCreateScreen());
         document.getElementById('join-game-btn').addEventListener('click', () => this.showJoinScreen());
+        document.getElementById('tutorial-btn').addEventListener('click', () => this.showTutorialScreen());
 
         // Create screen buttons
         document.getElementById('start-game-btn').addEventListener('click', () => this.startGame());
@@ -43,6 +44,9 @@ class MobiLambGame {
 
         // Game controls
         document.getElementById('leave-game-btn').addEventListener('click', () => this.leaveGame());
+
+        // Tutorial buttons
+        document.getElementById('back-to-menu-tutorial-btn').addEventListener('click', () => this.showMenuScreen());
 
         // Game over buttons
         document.getElementById('new-game-btn').addEventListener('click', () => this.newGame());
@@ -91,6 +95,10 @@ class MobiLambGame {
     showJoinScreen() {
         this.showScreen('join-screen');
         document.getElementById('join-code').value = '';
+    }
+
+    showTutorialScreen() {
+        this.showScreen('tutorial-screen');
     }
 
     joinGame() {
@@ -228,39 +236,49 @@ class MobiLambGame {
 
         if (maxMoves === 0) return [];
 
-        const possibleMoves = [];
+        // Use BFS to find all reachable positions within maxMoves steps
+        const reachablePositions = new Set();
+        const queue = [{ position: fromPosition, movesLeft: maxMoves }];
+        const visited = new Set();
+
         const directions = [
-            [-1, -1], [-1, 0], [-1, 1],  // Up-left, Up, Up-right
-            [0, -1], [0, 1],   // Left, Right
-            [1, -1], [1, 0], [1, 1]    // Down-left, Down, Down-right
+            [-1, 0],  // Up
+            [0, -1],  // Left
+            [0, 1],   // Right
+            [1, 0]    // Down
         ];
 
-        for (let moves = 1; moves <= maxMoves; moves++) {
-            for (const [dRow, dCol] of directions) {
-                const targetPosition = this.getPositionWithWrapping(fromPosition, dRow * moves, dCol * moves);
+        while (queue.length > 0) {
+            const { position, movesLeft } = queue.shift();
 
-                if (targetPosition !== null && this.isValidMove(targetPosition, playerId)) {
-                    possibleMoves.push(targetPosition);
+            if (movesLeft === 0) continue;
+
+            const currentRow = Math.floor(position / 4);
+            const currentCol = position % 4;
+
+            for (const [dRow, dCol] of directions) {
+                const newRow = (currentRow + dRow + 4) % 4; // Wraparound
+                const newCol = (currentCol + dCol + 4) % 4; // Wraparound
+                const newPosition = newRow * 4 + newCol;
+
+                if (newPosition === fromPosition) continue; // Don't include starting position
+
+                if (this.isValidMove(newPosition, playerId)) {
+                    reachablePositions.add(newPosition);
+
+                    const stateKey = `${newPosition}-${movesLeft - 1}`;
+                    if (!visited.has(stateKey) && movesLeft > 1) {
+                        visited.add(stateKey);
+                        queue.push({ position: newPosition, movesLeft: movesLeft - 1 });
+                    }
                 }
             }
         }
 
-        return possibleMoves;
+        return Array.from(reachablePositions);
     }
 
-    getPositionWithWrapping(fromPosition, dRow, dCol) {
-        const fromRow = Math.floor(fromPosition / 4);
-        const fromCol = fromPosition % 4;
 
-        let targetRow = (fromRow + dRow) % 4;
-        let targetCol = (fromCol + dCol) % 4;
-
-        // Handle negative wrapping
-        if (targetRow < 0) targetRow += 4;
-        if (targetCol < 0) targetCol += 4;
-
-        return targetRow * 4 + targetCol;
-    }
 
     isValidMove(targetPosition, playerId) {
         const targetTerrain = this.gameState.board[targetPosition];
@@ -288,8 +306,9 @@ class MobiLambGame {
         currentPlayerData.position = targetPosition;
         currentPlayerData.isFirstMove = false;
 
-        // Clear possible move highlights
+        // Clear possible move highlights and current player highlight
         this.clearPossibleMoves();
+        this.clearCurrentPlayerHighlight();
 
         // Re-render board
         this.renderBoard();
@@ -322,6 +341,7 @@ class MobiLambGame {
     endGame() {
         this.gameState.gameOver = true;
         this.clearPossibleMoves();
+        this.clearCurrentPlayerHighlight();
 
         setTimeout(() => {
             document.getElementById('winner-text').textContent = `Jogador ${this.gameState.winner} Venceu!`;
@@ -332,12 +352,22 @@ class MobiLambGame {
 
     highlightPossibleMoves() {
         this.clearPossibleMoves();
+        this.clearCurrentPlayerHighlight();
 
         if (this.gameState.gameOver) return;
 
         const currentPlayerData = this.gameState.players[this.gameState.currentPlayer];
         const possibleMoves = this.getPossibleMoves(currentPlayerData.position, this.gameState.currentPlayer);
 
+        // Highlight current player's position
+        if (currentPlayerData.position !== null) {
+            const currentTerrainElement = document.getElementById(`terrain-${currentPlayerData.position}`);
+            if (currentTerrainElement) {
+                currentTerrainElement.classList.add('current-player');
+            }
+        }
+
+        // Highlight possible moves
         possibleMoves.forEach(position => {
             const terrainElement = document.getElementById(`terrain-${position}`);
             if (terrainElement) {
@@ -349,6 +379,12 @@ class MobiLambGame {
     clearPossibleMoves() {
         document.querySelectorAll('.terrain.possible').forEach(terrain => {
             terrain.classList.remove('possible');
+        });
+    }
+
+    clearCurrentPlayerHighlight() {
+        document.querySelectorAll('.terrain.current-player').forEach(terrain => {
+            terrain.classList.remove('current-player');
         });
     }
 
@@ -405,6 +441,7 @@ class MobiLambGame {
             winner: null
         };
         this.clearPossibleMoves();
+        this.clearCurrentPlayerHighlight();
     }
 }
 

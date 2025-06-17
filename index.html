@@ -19,6 +19,7 @@
                 <div class="menu-buttons">
                     <button id="create-game-btn" class="menu-btn">Criar Partida</button>
                     <button id="join-game-btn" class="menu-btn">Entrar em Partida</button>
+                    <button id="tutorial-btn" class="menu-btn">Tutorial</button>
                     <button id="find-game-btn" class="menu-btn disabled">Procurar Partida</button>
                 </div>
             </div>
@@ -54,6 +55,108 @@
                 <div class="join-buttons">
                     <button id="join-btn" class="game-btn">Entrar</button>
                     <button id="back-to-menu2-btn" class="game-btn secondary">Voltar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tela de Tutorial -->
+        <div id="tutorial-screen" class="screen">
+            <div class="tutorial-container">
+                <h2>📖 Como Jogar MobiLamb</h2>
+
+                <div class="tutorial-content">
+                    <div class="tutorial-section">
+                        <h3>🎯 Objetivo</h3>
+                        <p>Mova sua ovelha estrategicamente para que o oponente não consiga mais se mover!</p>
+                    </div>
+
+                    <div class="tutorial-section">
+                        <h3>🏁 Configuração</h3>
+                        <div class="board-example">
+                            <div class="mini-board">
+                                <div class="mini-terrain start1">🟩</div>
+                                <div class="mini-terrain value-1">1</div>
+                                <div class="mini-terrain value-2">2</div>
+                                <div class="mini-terrain value-3">3</div>
+                                <div class="mini-terrain value-4">4</div>
+                                <div class="mini-terrain value-1">1</div>
+                                <div class="mini-terrain value-2">2</div>
+                                <div class="mini-terrain start2">🟧</div>
+                                <div class="mini-terrain value-3">3</div>
+                                <div class="mini-terrain value-1">1</div>
+                                <div class="mini-terrain value-2">2</div>
+                                <div class="mini-terrain value-4">4</div>
+                                <div class="mini-terrain value-1">1</div>
+                                <div class="mini-terrain value-3">3</div>
+                                <div class="mini-terrain value-2">2</div>
+                                <div class="mini-terrain value-1">1</div>
+                            </div>
+                        </div>
+                        <ul>
+                            <li><strong>🟩 Início Jogador 1</strong> (Ovelha Branca)</li>
+                            <li><strong>🟧 Início Jogador 2</strong> (Ovelha Preta)</li>
+                            <li><strong>Terrenos numerados:</strong> 4x valor 1, 4x valor 2, 4x valor 3, 2x valor 4</li>
+                        </ul>
+                    </div>
+
+                    <div class="tutorial-section">
+                        <h3>🚀 Movimentação</h3>
+                        <div class="movement-rules">
+                            <div class="rule">
+                                <strong>1º Movimento:</strong> Até 4 casas em qualquer direção
+                            </div>
+                            <div class="rule">
+                                <strong>Movimentos seguintes:</strong> Exatamente o número do terreno onde está
+                            </div>
+                            <div class="rule">
+                                <strong>Direções:</strong> Apenas horizontal ⬅️➡️ e vertical ⬆️⬇️
+                            </div>
+                            <div class="rule">
+                                <strong>Curvas:</strong> Pode mudar de direção a cada casa
+                            </div>
+                            <div class="rule">
+                                <strong>Wraparound:</strong> Sai de um lado, entra do outro
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tutorial-section">
+                        <h3>📋 Regras Importantes</h3>
+                        <ul>
+                            <li>🚫 <strong>Terrenos usados ficam inativos</strong> (cinza)</li>
+                            <li>🐑 <strong>Não pode parar onde o oponente está</strong></li>
+                            <li>👻 <strong>Pode passar por cima do oponente</strong></li>
+                            <li>🏆 <strong>Vence quem deixar o oponente sem movimentos</strong></li>
+                        </ul>
+                    </div>
+
+                    <div class="tutorial-section">
+                        <h3>💡 Exemplo de Movimento</h3>
+                        <p>Se você está no terreno <span class="terrain-badge value-3">3</span>, pode mover <strong>3
+                                casas</strong>:</p>
+                        <div class="example-grid">
+                            <div class="example-row">
+                                <span class="example-cell">📍</span>
+                                <span class="example-cell">➡️</span>
+                                <span class="example-cell">⬇️</span>
+                                <span class="example-cell">🎯</span>
+                            </div>
+                        </div>
+                        <p><small>Moveu 1 casa ➡️, depois 1 casa ⬇️, depois 1 casa ➡️ = 3 movimentos</small></p>
+                    </div>
+
+                    <div class="tutorial-section">
+                        <h3>🎮 Interface</h3>
+                        <ul>
+                            <li>🌟 <strong>Dourado pulsante:</strong> Sua ovelha atual</li>
+                            <li>🔵 <strong>Azul:</strong> Onde você pode mover</li>
+                            <li>⚫ <strong>Cinza:</strong> Terrenos inativos</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="tutorial-buttons">
+                    <button id="back-to-menu-tutorial-btn" class="game-btn">Entendi! Vamos Jogar</button>
                 </div>
             </div>
         </div>
