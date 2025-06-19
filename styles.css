@@ -17,7 +17,7 @@ body {
     min-height: 100vh;
 }
 
-/* Screens */
+/* Base Screen Layout */
 .screen {
     position: absolute;
     top: 0;
@@ -27,14 +27,50 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    opacity: 0;
-    visibility: hidden;
     transition: all 0.3s ease;
 }
 
-.screen.active {
+/* Telas normais - ficam invisíveis quando não ativas */
+#menu-screen,
+#create-screen,
+#join-screen,
+#tutorial-screen {
+    opacity: 0;
+    visibility: hidden;
+}
+
+#menu-screen.active,
+#create-screen.active,
+#join-screen.active,
+#tutorial-screen.active {
     opacity: 1;
     visibility: visible;
+}
+
+/* Tela do jogo - fica visível quando ativa OU quando game-over está ativo */
+#game-screen {
+    opacity: 0;
+    visibility: hidden;
+}
+
+#game-screen.active,
+#game-screen.keep-visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Tela de Game Over - sempre visível para mostrar tabuleiro atrás */
+#game-over-screen {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(-100vh);
+    transition: transform 0.3s ease;
+    pointer-events: none;
+}
+
+#game-over-screen.active {
+    transform: translateY(0);
+    pointer-events: auto;
 }
 
 /* Menu Screen */
@@ -608,21 +644,37 @@ body {
     border-top: 2px solid #e2e8f0;
 }
 
-/* Game Over Screen */
+/* Game Over Screen Container - sem fundo para mostrar tabuleiro */
+
 .game-over-container {
     text-align: center;
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(255, 255, 255, 0.15);
+    /* Fundo bem transparente */
+    backdrop-filter: blur(10px);
+    /* Efeito de vidro fosco */
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    /* Borda sutil */
     padding: 2rem;
     border-radius: 20px;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
     max-width: 400px;
     width: 90%;
 }
 
 .game-over-container h2 {
     font-size: 2rem;
-    color: #4a5568;
+    color: #2d3748;
+    /* Cor mais escura para melhor contraste */
     margin-bottom: 1rem;
+    text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
+    /* Sombra branca para destacar */
+    font-weight: 700;
+}
+
+.game-over-container p {
+    color: #4a5568;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+    font-weight: 600;
 }
 
 .game-over-buttons {
@@ -665,6 +717,11 @@ body {
     .game-over-container,
     .tutorial-container {
         padding: 1.5rem;
+    }
+
+    .game-over-container {
+        backdrop-filter: blur(8px);
+        /* Reduz o blur em telas menores */
     }
 
     .terrain {
@@ -776,6 +833,11 @@ body {
         .tutorial-container,
         .game-over-container {
             margin-top: 20px;
+        }
+
+        .game-over-container {
+            backdrop-filter: blur(8px);
+            /* Reduz o blur no iOS */
         }
     }
 }

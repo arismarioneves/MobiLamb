@@ -78,7 +78,19 @@ class MobiLambGame {
         document.querySelectorAll('.screen').forEach(screen => {
             screen.classList.remove('active');
         });
+
+        // Remove a classe keep-visible de todas as telas
+        document.querySelectorAll('.screen').forEach(screen => {
+            screen.classList.remove('keep-visible');
+        });
+
         document.getElementById(screenId).classList.add('active');
+
+        // Se está mostrando game-over, mantém a tela do jogo visível
+        if (screenId === 'game-over-screen') {
+            document.getElementById('game-screen').classList.add('keep-visible');
+        }
+
         this.gameState.currentScreen = screenId;
     }
 
