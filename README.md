@@ -34,7 +34,7 @@ O jogo termina quando um jogador não consegue mais fazer movimentos válidos. O
 - **Interface Web Responsiva**: Funciona em desktop e mobile
 - **Sistema de Partidas**: Criar e entrar em partidas com códigos compartilháveis
 - **Visual 3D**: Efeitos visuais em CSS 3D para uma experiência imersiva
-- **Indicações Visuais**: Movimentos possíveis destacados em dourado
+- **Indicações Visuais**: Movimentos possíveis destacados com bordas escuras
 - **Animações**: Transições suaves e efeitos visuais
 
 ## 🚀 Como Executar
