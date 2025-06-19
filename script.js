@@ -447,8 +447,115 @@ class MobiLambGame {
     }
 }
 
+// PWA Service Worker Registration
+class PWAManager {
+    constructor() {
+        this.installPrompt = null;
+        this.isInstalled = false;
+        this.init();
+    }
+
+    async init() {
+        // Register service worker
+        if ('serviceWorker' in navigator) {
+            try {
+                const registration = await navigator.serviceWorker.register('/sw.js');
+                console.log('🐑 MobiLamb: Service Worker registrado com sucesso', registration);
+
+                // Listen for updates
+                registration.addEventListener('updatefound', () => {
+                    console.log('🐑 MobiLamb: Nova versão disponível!');
+                    this.showUpdateNotification();
+                });
+            } catch (error) {
+                console.error('🐑 MobiLamb: Erro ao registrar Service Worker:', error);
+            }
+        }
+
+        // Handle install prompt
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            this.installPrompt = e;
+            this.showInstallButton();
+        });
+
+        // Check if already installed
+        window.addEventListener('appinstalled', () => {
+            console.log('🐑 MobiLamb: PWA instalado com sucesso!');
+            this.isInstalled = true;
+            this.hideInstallButton();
+        });
+
+        // Check if running as PWA
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            this.isInstalled = true;
+            console.log('🐑 MobiLamb: Executando como PWA');
+        }
+    }
+
+    showInstallButton() {
+        // Create install button if not exists
+        if (!document.getElementById('install-pwa-btn')) {
+            const installBtn = document.createElement('button');
+            installBtn.id = 'install-pwa-btn';
+            installBtn.className = 'menu-btn install-btn';
+            installBtn.innerHTML = '📱 Instalar App';
+            installBtn.onclick = () => this.installPWA();
+
+            const menuButtons = document.querySelector('.menu-buttons');
+            if (menuButtons) {
+                menuButtons.appendChild(installBtn);
+            }
+        }
+    }
+
+    hideInstallButton() {
+        const installBtn = document.getElementById('install-pwa-btn');
+        if (installBtn) {
+            installBtn.remove();
+        }
+    }
+
+    async installPWA() {
+        if (this.installPrompt) {
+            this.installPrompt.prompt();
+            const result = await this.installPrompt.userChoice;
+
+            if (result.outcome === 'accepted') {
+                console.log('🐑 MobiLamb: Usuário aceitou instalar o PWA');
+            } else {
+                console.log('🐑 MobiLamb: Usuário rejeitou instalar o PWA');
+            }
+
+            this.installPrompt = null;
+        }
+    }
+
+    showUpdateNotification() {
+        // Show a simple notification that update is available
+        const notification = document.createElement('div');
+        notification.className = 'update-notification';
+        notification.innerHTML = `
+            <div class="update-content">
+                <span>🐑 Nova versão disponível!</span>
+                <button onclick="location.reload()">Atualizar</button>
+            </div>
+        `;
+        document.body.appendChild(notification);
+
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+            notification.remove();
+        }, 5000);
+    }
+}
+
 // Initialize game when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialize PWA
+    const pwaManager = new PWAManager();
+
+    // Initialize game
     const game = new MobiLambGame();
 
     // Auto-highlight possible moves when game starts

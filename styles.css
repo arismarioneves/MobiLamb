@@ -692,3 +692,90 @@ body {
         font-size: 0.7rem;
     }
 }
+
+/* PWA Specific Styles */
+.install-btn {
+    background: linear-gradient(45deg, #667eea, #764ba2) !important;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3) !important;
+}
+
+.install-btn:hover:not(.disabled) {
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4) !important;
+}
+
+.update-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    padding: 1rem;
+    animation: slideInRight 0.3s ease;
+}
+
+.update-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.update-content span {
+    color: #4a5568;
+    font-weight: 600;
+}
+
+.update-content button {
+    background: #48bb78;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.update-content button:hover {
+    background: #38a169;
+    transform: scale(1.05);
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* PWA display mode adjustments */
+@media (display-mode: standalone) {
+    body {
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .screen {
+        height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    }
+}
+
+/* iOS PWA specific styles */
+@supports (-webkit-touch-callout: none) {
+    @media (display-mode: standalone) {
+
+        .menu-container,
+        .create-container,
+        .join-container,
+        .tutorial-container,
+        .game-over-container {
+            margin-top: 20px;
+        }
+    }
+}
