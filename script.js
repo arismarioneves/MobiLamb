@@ -187,7 +187,8 @@ class MobiLambGame {
                 terrainElement.textContent = ''; // 🟧
             } else {
                 terrainElement.classList.add(`value-${terrain.value}`);
-                terrainElement.textContent = terrain.value;
+                // Só mostra o número se o terreno não estiver desabilitado
+                terrainElement.textContent = terrain.disabled ? '' : terrain.value;
             }
 
             if (terrain.disabled) {
