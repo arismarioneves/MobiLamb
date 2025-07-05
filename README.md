@@ -19,9 +19,9 @@ MobiLamb é um jogo de tabuleiro digital onde dois jogadores controlam ovelhas (
   - 2 quadrados com valor 4 (vermelho)
 
 ### Regras de Movimento
-1. **Primeiro movimento**: Cada jogador pode mover até 4 casas em qualquer direção
-2. **Movimentos seguintes**: O jogador move exatamente o número de casas igual ao valor do terreno onde sua ovelha está
-3. **Direções**: Movimento em 8 direções (horizontal, vertical e diagonal)
+1. **Primeiro movimento**: Cada jogador pode mover **até 4 casas** em qualquer direção
+2. **Movimentos seguintes**: O jogador deve mover **exatamente o número de casas** igual ao valor do terreno onde sua ovelha está
+3. **Direções**: Movimento apenas em 4 direções (horizontal e vertical: ⬅️➡️⬆️⬇️)
 4. **Wraparound**: Se sair de uma borda, aparece na borda oposta da mesma linha/coluna
 5. **Terrenos inativos**: Após deixar um terreno, ele se torna cinza e inativo
 6. **Bloqueio**: Não pode parar onde o outro jogador está (mas pode passar por cima)

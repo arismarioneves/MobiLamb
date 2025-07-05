@@ -239,20 +239,18 @@ class MobiLambGame {
         const player = this.gameState.players[playerId];
         const fromTerrain = this.gameState.board[fromPosition];
 
-        let maxMoves;
+        let requiredMoves;
         if (player.isFirstMove) {
-            maxMoves = 4;
+            // Para o primeiro movimento, pode mover até 4 casas
+            requiredMoves = null; // Usaremos null para indicar movimento flexível
         } else {
-            maxMoves = typeof fromTerrain.value === 'number' ? fromTerrain.value : 0;
+            // Para movimentos subsequentes, deve mover exatamente o valor do terreno
+            requiredMoves = typeof fromTerrain.value === 'number' ? fromTerrain.value : 0;
         }
 
-        if (maxMoves === 0) return [];
+        if (requiredMoves === 0) return [];
 
-        // Use BFS to find all reachable positions within maxMoves steps
         const reachablePositions = new Set();
-        const queue = [{ position: fromPosition, movesLeft: maxMoves }];
-        const visited = new Set();
-
         const directions = [
             [-1, 0],  // Up
             [0, -1],  // Left
@@ -260,28 +258,67 @@ class MobiLambGame {
             [1, 0]    // Down
         ];
 
-        while (queue.length > 0) {
-            const { position, movesLeft } = queue.shift();
+        if (player.isFirstMove) {
+            // Para o primeiro movimento, use BFS para encontrar todas as posições até 4 casas
+            const queue = [{ position: fromPosition, movesLeft: 4 }];
+            const visited = new Set();
 
-            if (movesLeft === 0) continue;
+            while (queue.length > 0) {
+                const { position, movesLeft } = queue.shift();
 
-            const currentRow = Math.floor(position / 4);
-            const currentCol = position % 4;
+                if (movesLeft === 0) continue;
 
-            for (const [dRow, dCol] of directions) {
-                const newRow = (currentRow + dRow + 4) % 4; // Wraparound
-                const newCol = (currentCol + dCol + 4) % 4; // Wraparound
-                const newPosition = newRow * 4 + newCol;
+                const currentRow = Math.floor(position / 4);
+                const currentCol = position % 4;
 
-                if (newPosition === fromPosition) continue; // Don't include starting position
+                for (const [dRow, dCol] of directions) {
+                    const newRow = (currentRow + dRow + 4) % 4; // Wraparound
+                    const newCol = (currentCol + dCol + 4) % 4; // Wraparound
+                    const newPosition = newRow * 4 + newCol;
 
-                if (this.isValidMove(newPosition, playerId)) {
-                    reachablePositions.add(newPosition);
+                    if (newPosition === fromPosition) continue; // Don't include starting position
 
-                    const stateKey = `${newPosition}-${movesLeft - 1}`;
-                    if (!visited.has(stateKey) && movesLeft > 1) {
-                        visited.add(stateKey);
-                        queue.push({ position: newPosition, movesLeft: movesLeft - 1 });
+                    if (this.isValidMove(newPosition, playerId)) {
+                        reachablePositions.add(newPosition);
+
+                        const stateKey = `${newPosition}-${movesLeft - 1}`;
+                        if (!visited.has(stateKey) && movesLeft > 1) {
+                            visited.add(stateKey);
+                            queue.push({ position: newPosition, movesLeft: movesLeft - 1 });
+                        }
+                    }
+                }
+            }
+        } else {
+            // Para movimentos subsequentes, deve mover exatamente o valor do terreno
+            const queue = [{ position: fromPosition, movesLeft: requiredMoves }];
+            const visited = new Set();
+
+            while (queue.length > 0) {
+                const { position, movesLeft } = queue.shift();
+
+                const currentRow = Math.floor(position / 4);
+                const currentCol = position % 4;
+
+                for (const [dRow, dCol] of directions) {
+                    const newRow = (currentRow + dRow + 4) % 4; // Wraparound
+                    const newCol = (currentCol + dCol + 4) % 4; // Wraparound
+                    const newPosition = newRow * 4 + newCol;
+
+                    if (newPosition === fromPosition) continue; // Don't include starting position
+
+                    if (this.isValidMove(newPosition, playerId)) {
+                        if (movesLeft === 1) {
+                            // Só adiciona se é exatamente o último movimento
+                            reachablePositions.add(newPosition);
+                        } else {
+                            // Continua explorando se ainda há movimentos restantes
+                            const stateKey = `${newPosition}-${movesLeft - 1}`;
+                            if (!visited.has(stateKey)) {
+                                visited.add(stateKey);
+                                queue.push({ position: newPosition, movesLeft: movesLeft - 1 });
+                            }
+                        }
                     }
                 }
             }
@@ -411,15 +448,16 @@ class MobiLambGame {
         const currentPlayerData = this.gameState.players[this.gameState.currentPlayer];
         if (currentPlayerData.position !== null) {
             const currentTerrain = this.gameState.board[currentPlayerData.position];
-            let availableMoves;
+            let movesText;
 
             if (currentPlayerData.isFirstMove) {
-                availableMoves = 4;
+                movesText = `Movimentos: até 4`;
             } else {
-                availableMoves = typeof currentTerrain.value === 'number' ? currentTerrain.value : 0;
+                const requiredMoves = typeof currentTerrain.value === 'number' ? currentTerrain.value : 0;
+                movesText = `Movimentos: exatamente ${requiredMoves}`;
             }
 
-            movesCountElement.textContent = `Movimentos: ${availableMoves}`;
+            movesCountElement.textContent = movesText;
         }
 
         // Update player indicators
