@@ -59,6 +59,13 @@ O jogo termina quando um jogador não consegue mais fazer movimentos válidos. O
 - Considere o wraparound para movimentos surpreendentes
 - Tente controlar terrenos centrais para maior mobilidade
 
+## 🎮 Inspiração e Créditos
+
+### ✨ Inspiração
+Este jogo foi inspirado em **Collapsi**, um jogo de estratégia fascinante que demonstra como regras simples podem gerar jogabilidade complexa.
+
+📺 **Vídeo Original**: [Collapsi no YouTube](https://www.youtube.com/watch?v=6vYEHdjlw3g)
+
 ---
 
 Desenvolvido com ❤️ para diversão estratégica!

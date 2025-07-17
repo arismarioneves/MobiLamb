@@ -32,6 +32,7 @@ class MobiLambGame {
         document.getElementById('create-game-btn').addEventListener('click', () => this.showCreateScreen());
         document.getElementById('join-game-btn').addEventListener('click', () => this.showJoinScreen());
         document.getElementById('tutorial-btn').addEventListener('click', () => this.showTutorialScreen());
+        document.getElementById('credits-btn').addEventListener('click', () => this.showCreditsScreen());
 
         // Create screen buttons
         document.getElementById('start-game-btn').addEventListener('click', () => this.startGame());
@@ -47,6 +48,9 @@ class MobiLambGame {
 
         // Tutorial buttons
         document.getElementById('back-to-menu-tutorial-btn').addEventListener('click', () => this.showMenuScreen());
+
+        // Credits buttons
+        document.getElementById('back-to-menu-credits-btn').addEventListener('click', () => this.showMenuScreen());
 
         // Game over buttons
         document.getElementById('new-game-btn').addEventListener('click', () => this.newGame());
@@ -111,6 +115,10 @@ class MobiLambGame {
 
     showTutorialScreen() {
         this.showScreen('tutorial-screen');
+    }
+
+    showCreditsScreen() {
+        this.showScreen('credits-screen');
     }
 
     joinGame() {

@@ -34,7 +34,8 @@ body {
 #menu-screen,
 #create-screen,
 #join-screen,
-#tutorial-screen {
+#tutorial-screen,
+#credits-screen {
     opacity: 0;
     visibility: hidden;
 }
@@ -42,7 +43,8 @@ body {
 #menu-screen.active,
 #create-screen.active,
 #join-screen.active,
-#tutorial-screen.active {
+#tutorial-screen.active,
+#credits-screen.active {
     opacity: 1;
     visibility: visible;
 }
@@ -644,6 +646,78 @@ body {
     border-top: 2px solid #e2e8f0;
 }
 
+/* Credits Screen */
+.credits-container {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.credits-container h2 {
+    color: #4a5568;
+    margin-bottom: 1.5rem;
+    font-size: 2rem;
+    text-align: center;
+}
+
+.credits-content {
+    line-height: 1.6;
+}
+
+.credits-section {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 12px;
+    border-left: 4px solid #48bb78;
+}
+
+.credits-section h3 {
+    color: #2d3748;
+    margin-bottom: 1rem;
+    font-size: 1.3rem;
+}
+
+.credits-section p {
+    color: #4a5568;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+}
+
+.credits-link {
+    margin-top: 1rem;
+}
+
+.credits-link a {
+    display: inline-block;
+    color: #48bb78;
+    text-decoration: none;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border: 2px solid #48bb78;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.credits-link a:hover {
+    background: #48bb78;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3);
+}
+
+.credits-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
 /* Game Over Screen Container - sem fundo para mostrar tabuleiro */
 
 .game-over-container {
@@ -715,7 +789,8 @@ body {
     .create-container,
     .join-container,
     .game-over-container,
-    .tutorial-container {
+    .tutorial-container,
+    .credits-container {
         padding: 1.5rem;
     }
 
@@ -732,11 +807,13 @@ body {
         font-size: 1.2rem;
     }
 
-    .tutorial-container {
+    .tutorial-container,
+    .credits-container {
         max-height: 90vh;
     }
 
-    .tutorial-section {
+    .tutorial-section,
+    .credits-section {
         padding: 1rem;
     }
 
