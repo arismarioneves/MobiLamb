@@ -66,6 +66,10 @@ Este jogo foi inspirado em **Collapsi**, um jogo de estratégia fascinante que d
 
 📺 **Vídeo Original**: [Collapsi no YouTube](https://www.youtube.com/watch?v=6vYEHdjlw3g)
 
+### 📚 Créditos
+- **Lógica**: [Riffle Shuffle & Roll](https://www.youtube.com/@riffleshuffleandroll)
+- **Ícone**: [Icons8](https://img.icons8.com/?size=512&id=pOl5g6Rv5MB5&format=png&color=000000)
+
 ---
 
 Desenvolvido com ❤️ para diversão estratégica!
