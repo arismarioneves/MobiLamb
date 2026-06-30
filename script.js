@@ -1,647 +1,380 @@
+/* MobiLamb — whiteboard edition.
+ * Game RULES are unchanged from the original; only the screen flow and rendering
+ * were reformulated (rough.js hand-drawn board, inline vector icons). */
+
+const PALETTE = {
+    ink: '#2b2b2b', paper: '#fdfdfb',
+    blue: '#2f6fb0', purple: '#7a52c7', pink: '#d6418a', red: '#d6402f',
+    green: '#3f9e54', orange: '#e0832e'
+};
+const VALUE_COLOR = { 1: PALETTE.blue, 2: PALETTE.purple, 3: PALETTE.pink, 4: PALETTE.red };
+
+// Button variant -> { box, color }
+const BTN_VARIANTS = {
+    'btn-primary': { box: { fill: PALETTE.green, stroke: PALETTE.ink, strokeWidth: 3 }, color: PALETTE.paper },
+    'btn-blue':    { box: { fill: PALETTE.paper, stroke: PALETTE.blue, strokeWidth: 3 }, color: PALETTE.blue },
+    'btn-orange':  { box: { fill: PALETTE.paper, stroke: PALETTE.orange, strokeWidth: 3 }, color: PALETTE.orange },
+    'btn-red':     { box: { fill: PALETTE.paper, stroke: PALETTE.red, strokeWidth: 3 }, color: PALETTE.red },
+    'btn-ghost':   { box: { fill: PALETTE.paper, stroke: PALETTE.ink, strokeWidth: 2.6 }, color: PALETTE.ink }
+};
+
+function decorateButton(btn) {
+    const variant = Object.keys(BTN_VARIANTS).find(v => btn.classList.contains(v)) || 'btn-ghost';
+    const cfg = BTN_VARIANTS[variant];
+    const iconName = btn.dataset.icon;
+    if (iconName && !btn.querySelector('.sk-icon')) {
+        // clean filled FA glyph in the variant colour
+        btn.insertBefore(Sketch.icon(iconName, { fill: cfg.color }), btn.firstChild);
+    }
+    const ctrl = Sketch.box(btn, Object.assign({ fillStyle: 'solid', roughness: 1.7, seedKey: btn.id || iconName || 'btn' }, cfg.box));
+    if (!btn._skHover) {
+        btn._skHover = true;
+        btn.addEventListener('mouseenter', () => ctrl.update({ seed: Sketch.seedFrom((btn.id || 'b') + Math.floor(performance.now())) }));
+    }
+}
+
+// Fill standalone <svg.sk-icon[data-icon]> placeholders with hand-drawn paths.
+function fillIcons(root) {
+    (root || document).querySelectorAll('svg.sk-icon[data-icon]').forEach(ph => {
+        if (ph.dataset.done) return;
+        const name = ph.dataset.icon;
+        const color = getComputedStyle(ph).color || PALETTE.ink;
+        const ic = Sketch.icon(name, { fill: color });
+        ic.setAttribute('class', ph.getAttribute('class'));
+        ic.dataset.done = '1';
+        ph.replaceWith(ic);
+    });
+}
+
 class MobiLambGame {
     constructor() {
+        this.terrainValues = { PLAYER1_START: 'start1', PLAYER2_START: 'start2', VALUE_1: 1, VALUE_2: 2, VALUE_3: 3, VALUE_4: 4 };
+        this.resetState();
+        this.decorateUI();
+        this.initializeEventListeners();
+    }
+
+    resetState() {
         this.gameState = {
             currentScreen: 'menu',
-            gameCode: '',
             currentPlayer: 1,
-            players: {
-                1: { position: null, isFirstMove: true },
-                2: { position: null, isFirstMove: true }
-            },
+            players: { 1: { position: null, isFirstMove: true }, 2: { position: null, isFirstMove: true } },
             board: [],
             gameStarted: false,
             gameOver: false,
             winner: null
         };
+    }
 
-        this.terrainValues = {
-            PLAYER1_START: 'start1',
-            PLAYER2_START: 'start2',
-            VALUE_1: 1,
-            VALUE_2: 2,
-            VALUE_3: 3,
-            VALUE_4: 4
-        };
-
-        this.initializeEventListeners();
-        this.generateGameCode();
+    // ---- one-time UI rendering ----
+    decorateUI() {
+        document.querySelectorAll('.btn').forEach(decorateButton);
+        fillIcons();
+        // logo sheep (white, hand-drawn)
+        const logo = document.getElementById('logo-sheep');
+        if (logo) {
+            const s = Sketch.icon('sheep', { sketch: true, fill: PALETTE.paper, stroke: PALETTE.ink, strokeWidth: 16, roughness: 1.3 });
+            s.setAttribute('class', logo.getAttribute('class'));
+            logo.replaceWith(s);
+        }
+        // scoreboard sheep tokens + persistent rings
+        document.querySelectorAll('.psheep[data-sheep]').forEach(el => {
+            el.appendChild(Sketch.sheepToken(el.dataset.sheep, PALETTE));
+        });
+        Sketch.ring(document.getElementById('player1'), { stroke: PALETTE.green, strokeWidth: 3 });
+        Sketch.ring(document.getElementById('player2'), { stroke: PALETTE.orange, strokeWidth: 3 });
+        // tutorial mini board
+        this.renderMiniBoard();
     }
 
     initializeEventListeners() {
-        // Menu buttons
-        document.getElementById('create-game-btn').addEventListener('click', () => this.showCreateScreen());
-        document.getElementById('join-game-btn').addEventListener('click', () => this.showJoinScreen());
-        document.getElementById('tutorial-btn').addEventListener('click', () => this.showTutorialScreen());
-        document.getElementById('credits-btn').addEventListener('click', () => this.showCreditsScreen());
-
-        // Create screen buttons
-        document.getElementById('start-game-btn').addEventListener('click', () => this.startGame());
-        document.getElementById('back-to-menu-btn').addEventListener('click', () => this.showMenuScreen());
-        document.getElementById('copy-code-btn').addEventListener('click', () => this.copyGameCode());
-
-        // Join screen buttons
-        document.getElementById('join-btn').addEventListener('click', () => this.joinGame());
-        document.getElementById('back-to-menu2-btn').addEventListener('click', () => this.showMenuScreen());
-
-        // Game controls
-        document.getElementById('leave-game-btn').addEventListener('click', () => this.leaveGame());
-
-        // Tutorial buttons
-        document.getElementById('back-to-menu-tutorial-btn').addEventListener('click', () => this.showMenuScreen());
-
-        // Credits buttons
-        document.getElementById('back-to-menu-credits-btn').addEventListener('click', () => this.showMenuScreen());
-
-        // Game over buttons
-        document.getElementById('new-game-btn').addEventListener('click', () => this.newGame());
-        document.getElementById('back-to-menu3-btn').addEventListener('click', () => this.showMenuScreen());
+        const on = (id, fn) => { const el = document.getElementById(id); if (el) el.addEventListener('click', fn); };
+        on('play-btn', () => this.startGame());
+        on('tutorial-btn', () => this.showScreen('tutorial-screen'));
+        on('credits-btn', () => this.showScreen('credits-screen'));
+        on('tutorial-play-btn', () => this.startGame());
+        on('credits-back-btn', () => this.showMenu());
+        on('restart-btn', () => this.startGame());
+        on('leave-btn', () => this.leaveGame());
+        on('new-game-btn', () => this.startGame());
+        on('menu-btn', () => this.showMenu());
     }
 
-    generateGameCode() {
-        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        let code = 'LAMB-';
-        for (let i = 0; i < 4; i++) {
-            code += characters.charAt(Math.floor(Math.random() * characters.length));
-        }
-        this.gameState.gameCode = code;
-        document.getElementById('game-code').textContent = code;
+    // ---- navigation ----
+    showScreen(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active', 'behind'));
+        document.getElementById(id).classList.add('active');
+        if (id === 'game-over-screen') document.getElementById('game-screen').classList.add('behind');
+        this.gameState.currentScreen = id;
     }
 
-    copyGameCode() {
-        navigator.clipboard.writeText(this.gameState.gameCode).then(() => {
-            const btn = document.getElementById('copy-code-btn');
-            const originalText = btn.textContent;
-            btn.textContent = '✓';
-            setTimeout(() => {
-                btn.textContent = originalText;
-            }, 2000);
-        });
-    }
-
-    showScreen(screenId) {
-        document.querySelectorAll('.screen').forEach(screen => {
-            screen.classList.remove('active');
-        });
-
-        // Remove a classe keep-visible de todas as telas
-        document.querySelectorAll('.screen').forEach(screen => {
-            screen.classList.remove('keep-visible');
-        });
-
-        document.getElementById(screenId).classList.add('active');
-
-        // Se está mostrando game-over, mantém a tela do jogo visível
-        if (screenId === 'game-over-screen') {
-            document.getElementById('game-screen').classList.add('keep-visible');
-        }
-
-        this.gameState.currentScreen = screenId;
-    }
-
-    showMenuScreen() {
+    showMenu() {
         this.showScreen('menu-screen');
-        this.resetGame();
+        this.resetState();
     }
 
-    showCreateScreen() {
-        this.showScreen('create-screen');
-        this.generateGameCode();
-    }
-
-    showJoinScreen() {
-        this.showScreen('join-screen');
-        document.getElementById('join-code').value = '';
-    }
-
-    showTutorialScreen() {
-        this.showScreen('tutorial-screen');
-    }
-
-    showCreditsScreen() {
-        this.showScreen('credits-screen');
-    }
-
-    joinGame() {
-        const code = document.getElementById('join-code').value.toUpperCase();
-        if (code.length === 9 && code.startsWith('LAMB-')) {
-            this.gameState.gameCode = code;
-            this.startGame();
-        } else {
-            alert('Código inválido! Use o formato LAMB-XXXX');
-        }
-    }
-
+    // ---- game lifecycle ----
     startGame() {
+        this.resetState();
+        this.gameState.gameStarted = true;
         this.showScreen('game-screen');
         this.initializeBoard();
-        this.gameState.gameStarted = true;
+        this.renderBoard();
         this.updateUI();
     }
 
     initializeBoard() {
-        // Create terrain distribution
         const terrains = [
-            this.terrainValues.PLAYER1_START,
-            this.terrainValues.PLAYER2_START,
+            this.terrainValues.PLAYER1_START, this.terrainValues.PLAYER2_START,
             ...Array(4).fill(this.terrainValues.VALUE_1),
             ...Array(4).fill(this.terrainValues.VALUE_2),
             ...Array(4).fill(this.terrainValues.VALUE_3),
             ...Array(2).fill(this.terrainValues.VALUE_4)
         ];
-
-        // Shuffle terrains
         for (let i = terrains.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [terrains[i], terrains[j]] = [terrains[j], terrains[i]];
         }
-
-        // Initialize board
         this.gameState.board = terrains.map((value, index) => ({
-            id: index,
-            value: value,
-            disabled: false,
-            row: Math.floor(index / 4),
-            col: index % 4
+            id: index, value, disabled: false, row: Math.floor(index / 4), col: index % 4
         }));
-
-        // Set initial positions
-        const player1Start = this.gameState.board.find(t => t.value === this.terrainValues.PLAYER1_START);
-        const player2Start = this.gameState.board.find(t => t.value === this.terrainValues.PLAYER2_START);
-
-        this.gameState.players[1].position = player1Start.id;
-        this.gameState.players[2].position = player2Start.id;
-
-        // Randomly decide who starts
+        this.gameState.players[1].position = this.gameState.board.find(t => t.value === this.terrainValues.PLAYER1_START).id;
+        this.gameState.players[2].position = this.gameState.board.find(t => t.value === this.terrainValues.PLAYER2_START).id;
         this.gameState.currentPlayer = Math.random() < 0.5 ? 1 : 2;
-
-        this.renderBoard();
     }
 
+    // ---- rendering ----
     renderBoard() {
-        const boardContainer = document.getElementById('game-board');
-        boardContainer.innerHTML = '';
+        const board = document.getElementById('game-board');
+        board.innerHTML = '';
+        const gs = this.gameState;
 
-        this.gameState.board.forEach(terrain => {
-            const terrainElement = document.createElement('div');
-            terrainElement.className = 'terrain';
-            terrainElement.id = `terrain-${terrain.id}`;
-
-            // Add value classes
-            if (terrain.value === this.terrainValues.PLAYER1_START) {
-                terrainElement.classList.add('player1-start');
-                terrainElement.textContent = ''; // 🟩
-            } else if (terrain.value === this.terrainValues.PLAYER2_START) {
-                terrainElement.classList.add('player2-start');
-                terrainElement.textContent = ''; // 🟧
-            } else {
-                terrainElement.classList.add(`value-${terrain.value}`);
-                // Só mostra o número se o terreno não estiver desabilitado
-                terrainElement.textContent = terrain.disabled ? '' : terrain.value;
-            }
+        gs.board.forEach(terrain => {
+            const tile = document.createElement('div');
+            tile.className = 'tile';
+            tile.dataset.id = terrain.id;
+            board.appendChild(tile);
 
             if (terrain.disabled) {
-                terrainElement.classList.add('disabled');
+                tile.classList.add('disabled');
+                Sketch.box(tile, { fill: '#cfd3cb', fillStyle: 'cross-hatch', stroke: '#9aa093', strokeWidth: 1.6, hachureGap: 6, roughness: 2, seedKey: 'd' + terrain.id });
+            } else if (terrain.value === 'start1' || terrain.value === 'start2') {
+                Sketch.box(tile, { fill: '#eef0ea', fillStyle: 'solid', stroke: PALETTE.ink, strokeWidth: 2.4, roughness: 1.7, seedKey: 's' + terrain.id });
+            } else {
+                Sketch.box(tile, { fill: VALUE_COLOR[terrain.value], fillStyle: 'solid', stroke: PALETTE.ink, strokeWidth: 2.6, roughness: 1.7, seedKey: 't' + terrain.id });
+                const num = document.createElement('span');
+                num.className = 'num';
+                num.textContent = terrain.value;
+                tile.appendChild(num);
             }
-
-            // Add click listener
-            terrainElement.addEventListener('click', () => this.handleTerrainClick(terrain.id));
-
-            boardContainer.appendChild(terrainElement);
+            tile.addEventListener('click', () => this.handleTerrainClick(terrain.id));
         });
 
-        // Add sheep
-        this.renderSheep();
-    }
-
-    renderSheep() {
-        // Remove existing sheep
-        document.querySelectorAll('.sheep').forEach(sheep => sheep.remove());
-
-        // Add current sheep positions
-        Object.entries(this.gameState.players).forEach(([playerId, player]) => {
-            if (player.position !== null) {
-                const terrainElement = document.getElementById(`terrain-${player.position}`);
-                const sheepElement = document.createElement('div');
-                sheepElement.className = `sheep ${playerId === '1' ? 'white' : 'black'}`;
-                terrainElement.appendChild(sheepElement);
-            }
+        // sheep tokens
+        Object.entries(gs.players).forEach(([pid, p]) => {
+            if (p.position === null) return;
+            const tile = board.querySelector('.tile[data-id="' + p.position + '"]');
+            const num = tile.querySelector('.num');
+            if (num) num.style.display = 'none';
+            tile.appendChild(Sketch.sheepToken(pid === '1' ? 'dolly' : 'shaun', PALETTE));
         });
-    }
 
-    handleTerrainClick(terrainId) {
-        if (this.gameState.gameOver) return;
+        if (gs.gameOver) return;
 
-        const terrain = this.gameState.board[terrainId];
-        if (terrain.disabled) return;
+        // highlights: ring on current sheep + possible move outlines
+        const cur = gs.currentPlayer;
+        const curPos = gs.players[cur].position;
+        const curTile = board.querySelector('.tile[data-id="' + curPos + '"]');
+        if (curTile) curTile.classList.add('current');
 
-        const currentPlayerData = this.gameState.players[this.gameState.currentPlayer];
-        const possibleMoves = this.getPossibleMoves(currentPlayerData.position, this.gameState.currentPlayer);
-
-        if (possibleMoves.includes(terrainId)) {
-            this.makeMove(terrainId);
-        }
-    }
-
-    getPossibleMoves(fromPosition, playerId) {
-        if (fromPosition === null) return [];
-
-        const player = this.gameState.players[playerId];
-        const fromTerrain = this.gameState.board[fromPosition];
-
-        let requiredMoves;
-        if (player.isFirstMove) {
-            // Para o primeiro movimento, pode mover até 4 casas
-            requiredMoves = null; // Usaremos null para indicar movimento flexível
-        } else {
-            // Para movimentos subsequentes, deve mover exatamente o valor do terreno
-            requiredMoves = typeof fromTerrain.value === 'number' ? fromTerrain.value : 0;
-        }
-
-        if (requiredMoves === 0) return [];
-
-        const reachablePositions = new Set();
-        const directions = [
-            [-1, 0],  // Up
-            [0, -1],  // Left
-            [0, 1],   // Right
-            [1, 0]    // Down
-        ];
-
-        if (player.isFirstMove) {
-            // Para o primeiro movimento, use BFS para encontrar todas as posições até 4 casas
-            const queue = [{ position: fromPosition, movesLeft: 4 }];
-            const visited = new Set();
-
-            while (queue.length > 0) {
-                const { position, movesLeft } = queue.shift();
-
-                if (movesLeft === 0) continue;
-
-                const currentRow = Math.floor(position / 4);
-                const currentCol = position % 4;
-
-                for (const [dRow, dCol] of directions) {
-                    const newRow = (currentRow + dRow + 4) % 4; // Wraparound
-                    const newCol = (currentCol + dCol + 4) % 4; // Wraparound
-                    const newPosition = newRow * 4 + newCol;
-
-                    if (newPosition === fromPosition) continue; // Don't include starting position
-
-                    if (this.isValidMove(newPosition, playerId)) {
-                        reachablePositions.add(newPosition);
-
-                        const stateKey = `${newPosition}-${movesLeft - 1}`;
-                        if (!visited.has(stateKey) && movesLeft > 1) {
-                            visited.add(stateKey);
-                            queue.push({ position: newPosition, movesLeft: movesLeft - 1 });
-                        }
-                    }
-                }
-            }
-        } else {
-            // Para movimentos subsequentes, deve mover exatamente o valor do terreno
-            const queue = [{ position: fromPosition, movesLeft: requiredMoves }];
-            const visited = new Set();
-
-            while (queue.length > 0) {
-                const { position, movesLeft } = queue.shift();
-
-                const currentRow = Math.floor(position / 4);
-                const currentCol = position % 4;
-
-                for (const [dRow, dCol] of directions) {
-                    const newRow = (currentRow + dRow + 4) % 4; // Wraparound
-                    const newCol = (currentCol + dCol + 4) % 4; // Wraparound
-                    const newPosition = newRow * 4 + newCol;
-
-                    if (newPosition === fromPosition) continue; // Don't include starting position
-
-                    if (this.isValidMove(newPosition, playerId)) {
-                        if (movesLeft === 1) {
-                            // Só adiciona se é exatamente o último movimento
-                            reachablePositions.add(newPosition);
-                        } else {
-                            // Continua explorando se ainda há movimentos restantes
-                            const stateKey = `${newPosition}-${movesLeft - 1}`;
-                            if (!visited.has(stateKey)) {
-                                visited.add(stateKey);
-                                queue.push({ position: newPosition, movesLeft: movesLeft - 1 });
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        return Array.from(reachablePositions);
-    }
-
-
-
-    isValidMove(targetPosition, playerId) {
-        const targetTerrain = this.gameState.board[targetPosition];
-
-        // Can't move to disabled terrain
-        if (targetTerrain.disabled) return false;
-
-        // Can't move to position occupied by other player
-        const otherPlayerId = playerId === 1 ? 2 : 1;
-        if (this.gameState.players[otherPlayerId].position === targetPosition) return false;
-
-        return true;
-    }
-
-    makeMove(targetPosition) {
-        const currentPlayer = this.gameState.currentPlayer;
-        const currentPlayerData = this.gameState.players[currentPlayer];
-
-        // Disable the previous position
-        if (currentPlayerData.position !== null) {
-            this.gameState.board[currentPlayerData.position].disabled = true;
-        }
-
-        // Move player to new position
-        currentPlayerData.position = targetPosition;
-        currentPlayerData.isFirstMove = false;
-
-        // Clear possible move highlights and current player highlight
-        this.clearPossibleMoves();
-        this.clearCurrentPlayerHighlight();
-
-        // Re-render board
-        this.renderBoard();
-
-        // Check if game is over
-        if (this.checkGameOver()) {
-            this.endGame();
-            return;
-        }
-
-        // Switch turn
-        this.gameState.currentPlayer = this.gameState.currentPlayer === 1 ? 2 : 1;
-        this.updateUI();
-        this.highlightPossibleMoves();
-    }
-
-    checkGameOver() {
-        const nextPlayer = this.gameState.currentPlayer === 1 ? 2 : 1;
-        const nextPlayerData = this.gameState.players[nextPlayer];
-        const possibleMoves = this.getPossibleMoves(nextPlayerData.position, nextPlayer);
-
-        if (possibleMoves.length === 0) {
-            this.gameState.winner = this.gameState.currentPlayer;
-            return true;
-        }
-
-        return false;
-    }
-
-    endGame() {
-        this.gameState.gameOver = true;
-        this.clearPossibleMoves();
-        this.clearCurrentPlayerHighlight();
-
-        setTimeout(() => {
-            const winnerName = this.gameState.winner === 1 ? 'Dolly' : 'Shaun';
-            document.getElementById('winner-text').textContent = `${winnerName} Venceu!`;
-            document.getElementById('game-over-reason').textContent = 'O oponente não pode mais se mover';
-            this.showScreen('game-over-screen');
-        }, 1000);
-    }
-
-    highlightPossibleMoves() {
-        this.clearPossibleMoves();
-        this.clearCurrentPlayerHighlight();
-
-        if (this.gameState.gameOver) return;
-
-        const currentPlayerData = this.gameState.players[this.gameState.currentPlayer];
-        const possibleMoves = this.getPossibleMoves(currentPlayerData.position, this.gameState.currentPlayer);
-
-        // Highlight current player's position
-        if (currentPlayerData.position !== null) {
-            const currentTerrainElement = document.getElementById(`terrain-${currentPlayerData.position}`);
-            if (currentTerrainElement) {
-                currentTerrainElement.classList.add('current-player');
-            }
-        }
-
-        // Highlight possible moves
-        possibleMoves.forEach(position => {
-            const terrainElement = document.getElementById(`terrain-${position}`);
-            if (terrainElement) {
-                terrainElement.classList.add('possible');
-            }
+        this.getPossibleMoves(curPos, cur).forEach(pos => {
+            const t = board.querySelector('.tile[data-id="' + pos + '"]');
+            if (!t) return;
+            t.classList.add('possible');
+            const hl = document.createElement('div');
+            hl.className = 'move-hl';
+            t.appendChild(hl);
+            Sketch.box(hl, { fill: undefined, stroke: PALETTE.green, strokeWidth: 3.5, roughness: 2.2, pad: 3, seedKey: 'h' + pos });
         });
     }
 
-    clearPossibleMoves() {
-        document.querySelectorAll('.terrain.possible').forEach(terrain => {
-            terrain.classList.remove('possible');
-        });
-    }
-
-    clearCurrentPlayerHighlight() {
-        document.querySelectorAll('.terrain.current-player').forEach(terrain => {
-            terrain.classList.remove('current-player');
+    renderMiniBoard() {
+        const el = document.getElementById('tutorial-board');
+        if (!el) return;
+        // fixed sample layout: s1 + values + s2
+        const sample = ['start1', 1, 2, 3, 4, 1, 2, 'start2', 3, 1, 2, 4, 1, 3, 2, 1];
+        sample.forEach((v, i) => {
+            const tile = document.createElement('div');
+            tile.className = 'tile';
+            el.appendChild(tile);
+            if (v === 'start1' || v === 'start2') {
+                Sketch.box(tile, { fill: '#eef0ea', fillStyle: 'solid', stroke: PALETTE.ink, strokeWidth: 2, roughness: 1.7, seedKey: 'ms' + i });
+                tile.appendChild(Sketch.sheepToken(v === 'start1' ? 'dolly' : 'shaun', PALETTE));
+            } else {
+                Sketch.box(tile, { fill: VALUE_COLOR[v], fillStyle: 'solid', stroke: PALETTE.ink, strokeWidth: 2, roughness: 1.7, seedKey: 'm' + i });
+                const num = document.createElement('span');
+                num.className = 'num';
+                num.textContent = v;
+                tile.appendChild(num);
+            }
         });
     }
 
     updateUI() {
-        const currentTurnElement = document.getElementById('current-turn');
-        const movesCountElement = document.getElementById('moves-count');
+        const cur = this.gameState.currentPlayer;
+        const name = cur === 1 ? 'Dolly' : 'Shaun';
+        const turnEl = document.getElementById('current-turn');
+        turnEl.textContent = 'Vez de ' + name;
+        turnEl.style.color = cur === 1 ? PALETTE.green : PALETTE.orange;
 
-        const playerName = this.gameState.currentPlayer === 1 ? 'Dolly' : 'Shaun';
-        currentTurnElement.textContent = `Vez de ${playerName}`;
-
-        const currentPlayerData = this.gameState.players[this.gameState.currentPlayer];
-        if (currentPlayerData.position !== null) {
-            const currentTerrain = this.gameState.board[currentPlayerData.position];
-            let movesText;
-
-            if (currentPlayerData.isFirstMove) {
-                movesText = `Movimentos: até 4`;
-            } else {
-                const requiredMoves = typeof currentTerrain.value === 'number' ? currentTerrain.value : 0;
-                movesText = `Movimentos: exatamente ${requiredMoves}`;
+        const pdata = this.gameState.players[cur];
+        let moves = '';
+        if (pdata.position !== null) {
+            if (pdata.isFirstMove) moves = 'até 4 casas';
+            else {
+                const t = this.gameState.board[pdata.position];
+                moves = 'mova exatamente ' + (typeof t.value === 'number' ? t.value : 0);
             }
-
-            movesCountElement.textContent = movesText;
         }
+        document.getElementById('moves-count').textContent = moves;
+        document.getElementById('player1').classList.toggle('dim', cur !== 1);
+        document.getElementById('player2').classList.toggle('dim', cur !== 2);
+    }
 
-        // Update player indicators
-        document.querySelectorAll('.player').forEach(player => {
-            player.classList.remove('active');
-        });
-        document.querySelector(`.player${this.gameState.currentPlayer}`).classList.add('active');
+    // ---- interaction ----
+    handleTerrainClick(terrainId) {
+        if (this.gameState.gameOver) return;
+        if (this.gameState.board[terrainId].disabled) return;
+        const cur = this.gameState.players[this.gameState.currentPlayer];
+        if (this.getPossibleMoves(cur.position, this.gameState.currentPlayer).includes(terrainId)) {
+            this.makeMove(terrainId);
+        }
+    }
+
+    makeMove(targetPosition) {
+        const cur = this.gameState.currentPlayer;
+        const pdata = this.gameState.players[cur];
+        if (pdata.position !== null) this.gameState.board[pdata.position].disabled = true;
+        pdata.position = targetPosition;
+        pdata.isFirstMove = false;
+
+        if (this.checkGameOver()) {
+            this.gameState.gameOver = true;
+            this.renderBoard();
+            this.endGame();
+            return;
+        }
+        this.gameState.currentPlayer = cur === 1 ? 2 : 1;
+        this.renderBoard();
+        this.updateUI();
+    }
+
+    // ---- rules (unchanged behaviour) ----
+    getPossibleMoves(fromPosition, playerId) {
+        if (fromPosition === null) return [];
+        const player = this.gameState.players[playerId];
+        const fromTerrain = this.gameState.board[fromPosition];
+        const requiredMoves = player.isFirstMove ? null : (typeof fromTerrain.value === 'number' ? fromTerrain.value : 0);
+        if (requiredMoves === 0) return [];
+
+        const reachable = new Set();
+        const directions = [[-1, 0], [0, -1], [0, 1], [1, 0]];
+        const steps = player.isFirstMove ? 4 : requiredMoves;
+        const exact = !player.isFirstMove;
+
+        const queue = [{ position: fromPosition, movesLeft: steps }];
+        const visited = new Set();
+        while (queue.length > 0) {
+            const { position, movesLeft } = queue.shift();
+            if (movesLeft === 0) continue;
+            const r = Math.floor(position / 4), c = position % 4;
+            for (const [dr, dc] of directions) {
+                const np = ((r + dr + 4) % 4) * 4 + ((c + dc + 4) % 4);
+                if (np === fromPosition) continue;
+                if (!this.isValidMove(np, playerId)) continue;
+                if (!exact || movesLeft === 1) reachable.add(np);
+                if (movesLeft > 1) {
+                    const key = np + '-' + (movesLeft - 1);
+                    if (!visited.has(key)) { visited.add(key); queue.push({ position: np, movesLeft: movesLeft - 1 }); }
+                }
+            }
+        }
+        return Array.from(reachable);
+    }
+
+    isValidMove(targetPosition, playerId) {
+        if (this.gameState.board[targetPosition].disabled) return false;
+        const other = playerId === 1 ? 2 : 1;
+        if (this.gameState.players[other].position === targetPosition) return false;
+        return true;
+    }
+
+    checkGameOver() {
+        const next = this.gameState.currentPlayer === 1 ? 2 : 1;
+        if (this.getPossibleMoves(this.gameState.players[next].position, next).length === 0) {
+            this.gameState.winner = this.gameState.currentPlayer;
+            return true;
+        }
+        return false;
+    }
+
+    endGame() {
+        const winnerName = this.gameState.winner === 1 ? 'Dolly' : 'Shaun';
+        const trophy = document.getElementById('winner-trophy');
+        document.getElementById('winner-text').textContent = winnerName + ' venceu!';
+        document.getElementById('winner-text').style.color = this.gameState.winner === 1 ? PALETTE.green : PALETTE.orange;
+        document.getElementById('game-over-reason').textContent = 'O oponente não pode mais se mover.';
+        setTimeout(() => this.showScreen('game-over-screen'), 900);
     }
 
     leaveGame() {
-        if (confirm('Tem certeza que deseja sair do jogo?')) {
-            this.showMenuScreen();
-        }
-    }
-
-    newGame() {
-        this.resetGame();
-        this.showCreateScreen();
-    }
-
-    resetGame() {
-        this.gameState = {
-            currentScreen: 'menu',
-            gameCode: '',
-            currentPlayer: 1,
-            players: {
-                1: { position: null, isFirstMove: true },
-                2: { position: null, isFirstMove: true }
-            },
-            board: [],
-            gameStarted: false,
-            gameOver: false,
-            winner: null
-        };
-        this.clearPossibleMoves();
-        this.clearCurrentPlayerHighlight();
+        if (confirm('Sair do jogo e voltar ao menu?')) this.showMenu();
     }
 }
 
-// PWA Service Worker Registration
+/* ---- PWA ---- */
 class PWAManager {
-    constructor() {
-        this.installPrompt = null;
-        this.isInstalled = false;
-        this.init();
-    }
-
+    constructor() { this.installPrompt = null; this.init(); }
     async init() {
-        // Register service worker
         if ('serviceWorker' in navigator) {
             try {
-                const registration = await navigator.serviceWorker.register('/sw.js');
-                console.log('🐑 MobiLamb: Service Worker registrado com sucesso', registration);
-
-                // Listen for updates
-                registration.addEventListener('updatefound', () => {
-                    console.log('🐑 MobiLamb: Nova versão disponível!');
-                    this.showUpdateNotification();
-                });
-            } catch (error) {
-                console.error('🐑 MobiLamb: Erro ao registrar Service Worker:', error);
-            }
+                const reg = await navigator.serviceWorker.register('sw.js');
+                reg.addEventListener('updatefound', () => this.showUpdateToast());
+            } catch (e) { /* offline / unsupported */ }
         }
-
-        // Handle install prompt
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            this.installPrompt = e;
-            this.showInstallButton();
-        });
-
-        // Check if already installed
-        window.addEventListener('appinstalled', () => {
-            console.log('🐑 MobiLamb: PWA instalado com sucesso!');
-            this.isInstalled = true;
-            this.hideInstallButton();
-        });
-
-        // Check if running as PWA
-        if (window.matchMedia('(display-mode: standalone)').matches) {
-            this.isInstalled = true;
-            console.log('🐑 MobiLamb: Executando como PWA');
-        }
+        window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); this.installPrompt = e; this.showInstallButton(); });
+        window.addEventListener('appinstalled', () => this.hideInstallButton());
     }
-
     showInstallButton() {
-        // Create install button if not exists
-        if (!document.getElementById('install-pwa-btn')) {
-            const installBtn = document.createElement('button');
-            installBtn.id = 'install-pwa-btn';
-            installBtn.className = 'menu-btn install-btn';
-            installBtn.innerHTML = '📱 Instalar App';
-            installBtn.onclick = () => this.installPWA();
-
-            const menuButtons = document.querySelector('.menu-buttons');
-            if (menuButtons) {
-                menuButtons.appendChild(installBtn);
-            }
-        }
+        if (document.getElementById('install-btn')) return;
+        const btn = document.createElement('button');
+        btn.id = 'install-btn';
+        btn.className = 'btn btn-block btn-ghost';
+        btn.dataset.icon = 'mobile-screen-button';
+        btn.innerHTML = '<span>Instalar app</span>';
+        btn.onclick = () => this.installPWA();
+        const menu = document.querySelector('.menu-buttons');
+        if (menu) { menu.appendChild(btn); decorateButton(btn); }
     }
-
-    hideInstallButton() {
-        const installBtn = document.getElementById('install-pwa-btn');
-        if (installBtn) {
-            installBtn.remove();
-        }
-    }
-
+    hideInstallButton() { const b = document.getElementById('install-btn'); if (b) b.remove(); }
     async installPWA() {
-        if (this.installPrompt) {
-            this.installPrompt.prompt();
-            const result = await this.installPrompt.userChoice;
-
-            if (result.outcome === 'accepted') {
-                console.log('🐑 MobiLamb: Usuário aceitou instalar o PWA');
-            } else {
-                console.log('🐑 MobiLamb: Usuário rejeitou instalar o PWA');
-            }
-
-            this.installPrompt = null;
-        }
+        if (!this.installPrompt) return;
+        this.installPrompt.prompt();
+        await this.installPrompt.userChoice;
+        this.installPrompt = null;
     }
-
-    showUpdateNotification() {
-        // Show a simple notification that update is available
-        const notification = document.createElement('div');
-        notification.className = 'update-notification';
-        notification.innerHTML = `
-            <div class="update-content">
-                <span>🐑 Nova versão disponível!</span>
-                <button onclick="location.reload()">Atualizar</button>
-            </div>
-        `;
-        document.body.appendChild(notification);
-
-        // Auto-hide after 5 seconds
-        setTimeout(() => {
-            notification.remove();
-        }, 5000);
+    showUpdateToast() {
+        if (document.querySelector('.update-toast')) return;
+        const t = document.createElement('div');
+        t.className = 'update-toast';
+        t.innerHTML = '<span>Nova versão disponível</span><button>Atualizar</button>';
+        t.querySelector('button').onclick = () => location.reload();
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 6000);
     }
 }
 
-// Initialize game when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize PWA
-    const pwaManager = new PWAManager();
-
-    // Initialize game
-    const game = new MobiLambGame();
-
-    // Auto-highlight possible moves when game starts
-    const originalStartGame = game.startGame.bind(game);
-    game.startGame = function () {
-        originalStartGame();
-        setTimeout(() => {
-            this.highlightPossibleMoves();
-        }, 500);
-    };
-
-    // Add some visual feedback for the active player
-    const originalUpdateUI = game.updateUI.bind(game);
-    game.updateUI = function () {
-        originalUpdateUI();
-
-        // Add glow effect to current player's sheep
-        document.querySelectorAll('.sheep').forEach(sheep => {
-            sheep.style.filter = 'none';
-        });
-
-        const currentPlayerPosition = this.gameState.players[this.gameState.currentPlayer].position;
-        if (currentPlayerPosition !== null) {
-            const currentSheep = document.querySelector(`#terrain-${currentPlayerPosition} .sheep`);
-            if (currentSheep) {
-                currentSheep.style.filter = 'drop-shadow(0 0 10px gold)';
-            }
-        }
-    };
+    new PWAManager();
+    window.mobilamb = new MobiLambGame();
 });
