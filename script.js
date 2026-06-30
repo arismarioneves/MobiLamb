@@ -94,17 +94,24 @@ class MobiLambGame {
         on('credits-btn', () => this.showScreen('credits-screen'));
         on('tutorial-play-btn', () => this.startGame());
         on('credits-back-btn', () => this.showMenu());
-        on('restart-btn', () => this.startGame());
-        on('leave-btn', () => this.leaveGame());
+        on('restart-btn', () => this.askRestart());
+        on('leave-btn', () => this.askLeave());
         on('new-game-btn', () => this.startGame());
         on('menu-btn', () => this.showMenu());
+
+        // confirm overlay: click on backdrop cancels; Escape cancels
+        const confirmScreen = document.getElementById('confirm-screen');
+        if (confirmScreen) confirmScreen.addEventListener('click', e => { if (e.target === confirmScreen) this.closeConfirm(); });
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape' && this.gameState.currentScreen === 'confirm-screen') this.closeConfirm();
+        });
     }
 
     // ---- navigation ----
     showScreen(id) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active', 'behind'));
         document.getElementById(id).classList.add('active');
-        if (id === 'game-over-screen') document.getElementById('game-screen').classList.add('behind');
+        if (id === 'game-over-screen' || id === 'confirm-screen') document.getElementById('game-screen').classList.add('behind');
         this.gameState.currentScreen = id;
     }
 
@@ -327,8 +334,56 @@ class MobiLambGame {
         setTimeout(() => this.showScreen('game-over-screen'), 900);
     }
 
-    leaveGame() {
-        if (confirm('Sair do jogo e voltar ao menu?')) this.showMenu();
+    // ---- confirmation overlay (sketch style, replaces native confirm) ----
+    askConfirm(opts) {
+        const host = document.getElementById('confirm-icon-host');
+        host.innerHTML = '';
+        host.appendChild(Sketch.icon(opts.icon, { fill: opts.color }));
+        document.getElementById('confirm-title').textContent = opts.title;
+        document.getElementById('confirm-text').textContent = opts.text;
+
+        const actions = document.getElementById('confirm-actions');
+        actions.innerHTML = '';
+        const yes = document.createElement('button');
+        yes.className = 'btn ' + opts.confirmVariant;
+        yes.id = 'confirm-yes';
+        yes.innerHTML = '<span>' + opts.confirmLabel + '</span>';
+        const no = document.createElement('button');
+        no.className = 'btn btn-ghost';
+        no.id = 'confirm-no';
+        no.innerHTML = '<span>Cancelar</span>';
+        actions.appendChild(yes);
+        actions.appendChild(no);
+        decorateButton(yes);
+        decorateButton(no);
+        yes.addEventListener('click', () => { this.closeConfirm(); opts.onConfirm(); });
+        no.addEventListener('click', () => this.closeConfirm());
+
+        this.showScreen('confirm-screen');
+    }
+
+    closeConfirm() {
+        this.showScreen('game-screen');
+    }
+
+    askRestart() {
+        this.askConfirm({
+            icon: 'arrows-rotate', color: PALETTE.blue,
+            title: 'Reiniciar partida?',
+            text: 'O tabuleiro será embaralhado e a partida recomeça do zero.',
+            confirmLabel: 'Reiniciar', confirmVariant: 'btn-blue',
+            onConfirm: () => this.startGame()
+        });
+    }
+
+    askLeave() {
+        this.askConfirm({
+            icon: 'right-from-bracket', color: PALETTE.red,
+            title: 'Sair do jogo?',
+            text: 'Você volta ao menu inicial e a partida atual é perdida.',
+            confirmLabel: 'Sair', confirmVariant: 'btn-red',
+            onConfirm: () => this.showMenu()
+        });
     }
 }
 

@@ -215,12 +215,20 @@
 
 .sheet-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 0.4rem; }
 
-/* ---------- Game over ---------- */
-#game-over-screen {
+/* ---------- Game over / Confirmação ---------- */
+#game-over-screen,
+#confirm-screen {
     background: rgba(245, 246, 242, 0.7);
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
 }
+.confirm-icon-host {
+    width: clamp(52px, 14vw, 72px);
+    height: clamp(52px, 14vw, 72px);
+    display: grid;
+    place-items: center;
+}
+.confirm-icon-host .sk-icon { width: 100%; height: 100%; }
 .game-over-card {
     width: min(420px, 100%);
     text-align: center;
