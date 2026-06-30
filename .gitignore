@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Local npm auth token — NEVER commit
+.npmrc
+
+# Dependency manifests are only used to (re)fetch/vendor assets into assets/.
+# The game itself ships those assets and needs no npm at runtime.
+package.json
+package-lock.json
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+*.log
+
+# Scratch / preview artifacts (not part of the game)
+.playwright-mcp/
+mockups/
+scratch_*
+/menu-*.png
+/game-*.png
+/real-*.png
+/icons-*.png
+/compare*.png

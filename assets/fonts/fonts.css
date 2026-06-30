@@ -1,0 +1,19 @@
+/* Self-hosted handwriting fonts (OFL) — MobiLamb whiteboard identity */
+
+/* Gochi Hand — display / logo / headings (bold friendly marker) */
+@font-face {
+    font-family: 'Gochi Hand';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('gochi-hand-latin-400-normal.woff2') format('woff2');
+}
+
+/* Patrick Hand — UI / body / board numbers (clean hand-print) */
+@font-face {
+    font-family: 'Patrick Hand';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('patrick-hand-latin-400-normal.woff2') format('woff2');
+}
