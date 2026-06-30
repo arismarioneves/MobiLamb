@@ -1,39 +1,39 @@
 {
-    "name": "MobiLamb - Jogo de Estratégia com Ovelhas",
+    "name": "MobiLamb - Duelo de Ovelhas",
     "short_name": "MobiLamb",
-    "description": "Jogo de estratégia com ovelhas na fazenda. Mova sua ovelha estrategicamente para que o oponente não consiga mais se mover!",
-    "start_url": "/",
-    "scope": "/",
+    "description": "Duelo de estratégia de ovelhas num quadro branco. Mova sua ovelha para que o oponente fique sem jogadas!",
+    "start_url": "../",
+    "scope": "../",
     "display": "standalone",
     "orientation": "portrait",
-    "theme_color": "#ffffff",
-    "background_color": "#ffffff",
+    "theme_color": "#f5f6f2",
+    "background_color": "#f5f6f2",
     "lang": "pt-BR",
-    "categories": ["games", "entertainment", "sheep"],
+    "categories": ["games", "board"],
     "icons": [
-    {
-        "src": "/icons/web-app-manifest-192x192.png",
-        "sizes": "192x192",
-        "type": "image/png",
-        "purpose": "any maskable"
-    },
-    {
-        "src": "/icons/web-app-manifest-512x512.png",
-        "sizes": "512x512",
-        "type": "image/png",
-        "purpose": "any maskable"
-    },
-    {
-        "src": "/icons/favicon-96x96.png",
-        "sizes": "96x96",
-        "type": "image/png",
-        "purpose": "any"
-    },
-    {
-        "src": "/icons/apple-touch-icon.png",
-        "sizes": "180x180",
-        "type": "image/png",
-        "purpose": "any"
-    }
+        {
+            "src": "web-app-manifest-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "web-app-manifest-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "favicon-96x96.png",
+            "sizes": "96x96",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "apple-touch-icon.png",
+            "sizes": "180x180",
+            "type": "image/png",
+            "purpose": "any"
+        }
     ]
 }

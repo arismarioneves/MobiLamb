@@ -1,75 +1,59 @@
-# 🐑 MobiLamb - Jogo de Ovelhas
+# 🐑 MobiLamb
 
-Um jogo de estratégia para dois jogadores onde ovelhas se movem por terrenos de uma fazenda.
+Duelo de estratégia de ovelhas num **quadro branco**. Dois jogadores, no mesmo dispositivo, movem suas ovelhas pelos terrenos até que o oponente fique sem jogadas.
 
-## 📋 Descrição
+Interface desenhada à mão (estética *whiteboard sketch*), responsiva para desktop e mobile, e instalável como PWA — **funciona 100% offline**.
 
-MobiLamb é um jogo de tabuleiro digital onde dois jogadores controlam ovelhas (uma branca e uma negra) em um tabuleiro 4x4 com 16 terrenos. O objetivo é estratégicamente mover sua ovelha de forma que o oponente não possa mais fazer movimentos válidos.
+## 🎮 Como jogar
 
-## 🎮 Como Jogar
+Menu direto: **Jogar · Tutorial · Créditos**.
 
-### Configuração Inicial
-- Tabuleiro 4x4 (16 quadrados)
-- Cada quadrado tem um valor específico:
-  - 1 quadrado inicial do Jogador 1 🟩
-  - 1 quadrado inicial do Jogador 2 🟧
-  - 4 quadrados com valor 1 (azul)
-  - 4 quadrados com valor 2 (roxo)
-  - 4 quadrados com valor 3 (rosa)
-  - 2 quadrados com valor 4 (vermelho)
+### Tabuleiro
+4×4 (16 terrenos), embaralhados a cada partida:
+- 1 início de **Dolly** (ovelha branca) e 1 início de **Shaun** (ovelha preta)
+- 4× terreno **1**, 4× **2**, 4× **3**, 2× **4**
 
-### Regras de Movimento
-1. **Primeiro movimento**: Cada jogador pode mover **até 4 casas** em qualquer direção
-2. **Movimentos seguintes**: O jogador deve mover **exatamente o número de casas** igual ao valor do terreno onde sua ovelha está
-3. **Direções**: Movimento apenas em 4 direções (horizontal e vertical: ⬅️➡️⬆️⬇️)
-4. **Wraparound**: Se sair de uma borda, aparece na borda oposta da mesma linha/coluna
-5. **Terrenos inativos**: Após deixar um terreno, ele se torna cinza e inativo
-6. **Bloqueio**: Não pode parar onde o outro jogador está (mas pode passar por cima)
+### Regras de movimento
+1. **1ª jogada:** até **4 casas** em qualquer direção.
+2. **Jogadas seguintes:** exatamente o número do terreno onde sua ovelha está.
+3. **Direções:** só horizontal e vertical (pode mudar de direção a cada casa).
+4. **Wraparound:** sair de uma borda reaparece na borda oposta.
+5. **Terreno usado** fica rabiscado e sai do jogo.
+6. **Bloqueio:** não pode parar onde o oponente está (mas pode passar por cima).
 
 ### Vitória
-O jogo termina quando um jogador não consegue mais fazer movimentos válidos. O outro jogador é declarado vencedor.
+Vence quem deixar o oponente **sem jogadas válidas**.
 
-## 🌐 Funcionalidades
+## 🚀 Como executar
 
-- **Interface Web Responsiva**: Funciona em desktop e mobile
-- **Sistema de Partidas**: Criar e entrar em partidas com códigos compartilháveis
-- **Visual 3D**: Efeitos visuais em CSS 3D para uma experiência imersiva
-- **Indicações Visuais**: Movimentos possíveis destacados com bordas escuras
-- **Animações**: Transições suaves e efeitos visuais
+É um app estático, **sem build**. Basta abrir `index.html` num navegador moderno — ou servir a pasta:
 
-## 🚀 Como Executar
-
-1. Abra o arquivo `index.html` em qualquer navegador moderno
-2. Clique em "Criar Partida" para iniciar um novo jogo
-3. Compartilhe o código da partida com outro jogador
-4. O outro jogador deve clicar em "Entrar em Partida" e inserir o código
-5. Comece a jogar!
+```bash
+npx http-server . -p 8080
+# abra http://localhost:8080
+```
 
 ## 🎨 Tecnologias
 
-- **HTML5**: Estrutura da aplicação
-- **CSS3**: Estilização com efeitos 3D e animações
-- **JavaScript ES6+**: Lógica do jogo e interatividade
-- **Design Responsivo**: Compatível com dispositivos móveis
+- **HTML5 / CSS3 / JavaScript (ES6+)** — sem framework, sem build
+- **[rough.js](https://roughjs.com)** — traço feito à mão (tabuleiro, ovelhas, realces)
+- **Ícones vetoriais inline** — leves e offline
+- **Gochi Hand** + **Patrick Hand** — fontes manuscritas self-hosted (OFL)
+- **PWA** — service worker com cache offline
 
-## 🎯 Estratégias
+> Todos os assets ficam vendorizados em `assets/` — o jogo roda **100% offline, sem build e sem dependências em tempo de execução**.
 
-- Planeje seus movimentos para deixar o oponente sem opções
-- Use terrenos de valor alto para cobrir mais distância
-- Considere o wraparound para movimentos surpreendentes
-- Tente controlar terrenos centrais para maior mobilidade
+## 🎯 Estratégia
 
-## 🎮 Inspiração e Créditos
+- Planeje para deixar o oponente sem opções.
+- Terrenos de valor alto cobrem mais distância.
+- Use o wraparound para jogadas surpresa.
 
-### ✨ Inspiração
-Este jogo foi inspirado em **Collapsi**, um jogo de estratégia fascinante que demonstra como regras simples podem gerar jogabilidade complexa.
+## 🙌 Créditos
 
-📺 **Vídeo Original**: [Collapsi no YouTube](https://www.youtube.com/watch?v=6vYEHdjlw3g)
-
-### 📚 Créditos
-- **Lógica**: [Riffle Shuffle & Roll](https://www.youtube.com/@riffleshuffleandroll)
-- **Ícone**: [Icons8](https://img.icons8.com/?size=512&id=pOl5g6Rv5MB5&format=png&color=000000)
+- **Inspiração:** [Collapsi](https://www.youtube.com/watch?v=6vYEHdjlw3g) — Riffle Shuffle & Roll
+- **Traço:** [rough.js](https://roughjs.com) · **Fontes:** Gochi Hand, Patrick Hand (OFL)
 
 ---
 
-Desenvolvido com ❤️ para diversão estratégica!
+Feito à mão para diversão estratégica 🐑

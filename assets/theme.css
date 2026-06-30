@@ -1,0 +1,121 @@
+/* theme.css — MobiLamb whiteboard design tokens + base sketch styling */
+
+:root {
+    /* Whiteboard surface */
+    --board-bg: #f5f6f2;
+    --board-bg-2: #eef0ea;
+    --dot: #d4d9d0;
+
+    /* Marker ink */
+    --ink: #2b2b2b;
+    --ink-soft: #5a5a55;
+
+    /* Marker colors (terrain values + players) */
+    --blue: #2f6fb0;     /* value 1 */
+    --purple: #7a52c7;   /* value 2 */
+    --pink: #d6418a;     /* value 3 */
+    --red: #d6402f;      /* value 4 */
+    --green: #3f9e54;    /* Dolly / player 1 / primary action */
+    --orange: #e0832e;   /* Shaun / player 2 */
+    --paper: #fdfdfb;    /* inner fill for cards / sheep */
+
+    /* Type */
+    --font-display: 'Gochi Hand', 'Comic Sans MS', cursive;
+    --font-body: 'Patrick Hand', 'Comic Sans MS', cursive;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+    font-family: var(--font-body);
+    color: var(--ink);
+    background-color: var(--board-bg);
+    /* faint dot grid like a whiteboard */
+    background-image:
+        radial-gradient(var(--dot) 1.4px, transparent 1.5px);
+    background-size: 26px 26px;
+    background-position: -13px -13px;
+    min-height: 100dvh;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+/* Hand-drawn layers ----------------------------------------------------- */
+.sk-box {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+    overflow: visible;
+}
+.sk-ring {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    overflow: visible;
+}
+.sk-icon {
+    display: block;
+    width: 1em;
+    height: 1em;
+    overflow: visible;
+}
+
+/* Sheep game-piece token: white disc + player ring + sheep on top */
+.sk-token {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 1;
+}
+.sk-disc {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: visible;
+}
+.sk-token-sheep {
+    position: relative;
+    z-index: 1;
+    width: 66%;
+    height: 66%;
+}
+
+/* Typography ------------------------------------------------------------ */
+h1, h2, h3 { font-family: var(--font-display); font-weight: 400; line-height: 1.05; }
+
+/* Buttons --------------------------------------------------------------- */
+.btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6em;
+    font-family: var(--font-body);
+    font-size: 1.5rem;
+    color: var(--ink);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0.7em 1.4em;
+    line-height: 1;
+    transition: transform 0.12s ease, rotate 0.12s ease;
+    isolation: isolate;
+}
+.btn > *:not(.sk-box):not(.sk-ring) { position: relative; z-index: 1; }
+.btn .sk-icon { width: 1.15em; height: 1.15em; }
+.btn:hover { transform: translateY(-3px) rotate(-1deg); }
+.btn:active { transform: translateY(0) rotate(0); }
+.btn:focus-visible { outline: 3px dashed var(--ink); outline-offset: 4px; }
+
+@media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+}
